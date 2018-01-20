@@ -264,29 +264,28 @@ function createArticle(url, request) {
 }
 
 function createComment(url, request) {
-  const requestComment = request.body && request.body.comment; /* "&&" checks for truthiness and returns the last object mentioned (request.body.comment --> if both exist request.body.comment is returned. THIS is a very slick way of not having to handle errors with try/catch) */
-  const response = {}; // creates a new response object
+  const requestComment = request.body && request.body.comment; 
+  const response = {};
 
   if (requestComment && requestComment.body && requestComment.username &&
       requestComment.articleId && database.users[requestComment.username] && database.articles[requestComment.articleId]) {
-    // checks to see if request is valid ie: contains username, articleId and that the username exists already in the database
     const comment = {
-      id: database.nextCommentId++, //gives the id by incrementing nextCommentId in database
+      id: database.nextCommentId++, //
       body: requestComment.body,
       username: requestComment.username,
-      articleId: requestComment.articleId, //ties the comment to the article being commented on
-      upvotedBy: [], //creates by doesn't add anything
+      articleId: requestComment.articleId, 
+      upvotedBy: [], 
       downvotedBy: [],
     };
 
-    database.comments[comment.id] = comment; //adds a comment to the database with the new id created in comment and populates the database comment object with comment ---slick as hell
-    database.users[comment.username].commentIds.push(comment.id) // //updates the user's array of commentIds in the database with the comment id that was created in comment object
+    database.comments[comment.id] = comment; 
+    database.users[comment.username].commentIds.push(comment.id) 
     database.articles[comment.articleId].commentIds.push(comment.id);
 
-    response.body = {comment: comment}; // // sets the response.body.comment with the comment
+    response.body = {comment: comment}; 
     response.status = 201;
   } else {
-    response.status = 400; // if any part of the conditional is not met the response status is 400
+    response.status = 400; 
   }
 
   return response;
@@ -318,14 +317,14 @@ function deleteComment(url, request) {
   const response = {};
 
   if (savedComment) {
-    // routes['/comments/:id'].DELETE should delete an existing comment
+
     const comment = database.comments[id];
     database.comments[id] = null;
-    // routes['/comments/:id'].DELETE should remove a deleted comment ID from the author's comment IDs
+
     const userCommentIds = database.users[comment.username].commentIds;
     userCommentIds.splice(userCommentIds.indexOf(id), 1);
-    // routes['/comments/:id'].DELETE should remove a deleted comment ID from the article's comment IDs
-    const userArticleIds = database.articles[id].commentIds;
+
+    const userArticleIds = database.articles[id].commentIds; // // AT REVIEWER: getting an error when trying to delete the comment, might this be wrong?
     userArticleIds.splice(userArticleIds.indexOf(id), 1);
 
     response.status = 204;
